@@ -23,7 +23,7 @@ class Complectation(models.Model):
     transmission = models.CharField(max_length=50, verbose_name="Transmission type")
     drive = models.CharField(max_length=50, verbose_name="Drive type")
     price = models.CharField(max_length=50, verbose_name="Price")
-    year = models.CharField(max_length=4, verbose_name="Year")
+    year = models.CharField(max_length=50, verbose_name="Year")
 
     def __str__(self):
         return f"{self.car.model} - {self.name}"

@@ -57,7 +57,3 @@ postgres_data/
 # Docker
 .docker/
 docker-compose.override.yml
-
-# SSL certificates
-nginx/ssl/*
-!nginx/ssl/.gitkeep 
