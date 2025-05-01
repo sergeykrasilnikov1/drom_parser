@@ -34,7 +34,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf  # Mount Nginx config
+      - ./nginx/conf.d:/etc/nginx/conf.d  # Mount Nginx config directory
       - static_volume:/app/staticfiles:ro  # Read-only static files
     depends_on:
       - web
