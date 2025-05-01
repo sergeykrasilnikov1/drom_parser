@@ -134,21 +134,32 @@ GET /api/search/
 }
 ```
 
-## Rate Limiting
-Currently, there are no rate limits implemented.
+### Table: Car
+| Field | Type | Description | Constraints |
+|-------|------|-------------|-------------|
+| id | Integer | Primary key | Auto-increment |
+| model | CharField(255) | Model name | - |
+| model_url | URLField | URL to the car model page | - |
+| image_url | URLField | URL to the car image | - |
 
-## Error Handling
-The API uses standard HTTP status codes to indicate the success or failure of a request:
-- 200: Success
-- 400: Bad Request (invalid parameters)
-- 500: Internal Server Error
+### Table: Complectation
+| Field | Type | Description | Constraints |
+|-------|------|-------------|-------------|
+| id | Integer | Primary key | Auto-increment |
+| car | ForeignKey | Reference to Car model | on_delete=CASCADE |
+| name | CharField(255) | Complectation name | - |
+| volume | CharField(50) | Engine volume | - |
+| fuel_type | CharField(50) | Fuel type | - |
+| power | CharField(50) | Engine power | - |
+| transmission | CharField(50) | Transmission type | - |
+| drive | CharField(50) | Drive type | - |
+| price | CharField(50) | Price | - |
+| year | CharField(4) | Year of manufacture | - |
 
-## Notes
-- All price values should be in rubles
-- Year values should be in YYYY format
-- Engine volume should be in liters
-- Power should be in horsepower
-- The API automatically fetches all available pages of results 
+## Relationships
+- One Car can have many Complectations (One-to-Many relationship)
+- Complectation belongs to one Car (Many-to-One relationship)
+
 
 ### Search Cars from Database
 ```
@@ -239,9 +250,3 @@ GET /api/search_cars/?model=Toyota&year_min=2020&price_max=5000000
     ]
 }
 ```
-
-#### Notes
-- All text-based searches are case-insensitive and support partial matches
-- A car is included in the results only if it has at least one complectation matching all specified criteria
-- If multiple complectations match the criteria, all of them will be included in the response
-- The endpoint returns data from the local database, which may be different from the live Drom.ru data 
