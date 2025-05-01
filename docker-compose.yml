@@ -7,6 +7,7 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
+      - static_volume:/app/staticfiles
     env_file:
       - .env
     depends_on:
@@ -27,4 +28,5 @@ services:
       - "${DB_PORT}:5432"
 
 volumes:
-  postgres_data: 
+  postgres_data:
+  static_volume: 
