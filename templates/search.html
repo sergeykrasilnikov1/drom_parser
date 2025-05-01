@@ -1,0 +1,74 @@
+{% csrf_token %}
+<form method="POST">
+    {% csrf_token %}
+    <label for="marka">Марка:</label>
+    <input type="text" name="marka" id="marka">
+
+    <label for="model">Модель:</label>
+    <input type="text" name="model" id="model">
+
+    <label for="price_min">Цена от:</label>
+    <input type="number" name="price_min" id="price_min">
+
+    <label for="price_max">Цена до:</label>
+    <input type="number" name="price_max" id="price_max">
+
+    <label for="year_min">Год от:</label>
+    <input type="number" name="year_min" id="year_min">
+
+    <label for="year_max">Год до:</label>
+    <input type="number" name="year_max" id="year_max">
+
+    <label>Тип топлива:</label>
+    <input type="checkbox" name="fuel_type" value="0"> Бензин
+    <input type="checkbox" name="fuel_type" value="1"> Газ
+    <input type="checkbox" name="fuel_type" value="2"> Дизель
+
+    <label>Тип привода:</label>
+    <input type="checkbox" name="drive_type" value="1"> Передний
+    <input type="checkbox" name="drive_type" value="2"> Задний
+
+    <label>Тип трансмиссии:</label>
+    <input type="checkbox" name="trans_type" value="1"> Механика
+    <input type="checkbox" name="trans_type" value="3"> Автомат
+
+    <label for="volume_min">Объем от:</label>
+    <input type="number" name="volume_min" id="volume_min" step="0.1">
+
+    <label for="volume_max">Объем до:</label>
+    <input type="number" name="volume_max" id="volume_max" step="0.1">
+
+    <label for="power_min">Мощность от:</label>
+    <input type="number" name="power_min" id="power_min">
+
+    <label for="power_max">Мощность до:</label>
+    <input type="number" name="power_max" id="power_max">
+
+    <button type="submit">Найти</button>
+</form>
+
+{% if error %}
+    <div class="error-message" style="color: red; margin: 20px 0;">
+        {{ error }}
+    </div>
+{% endif %}
+
+{% if results %}
+    <h2>Результаты поиска:</h2>
+    <ul>
+        {% for result in results %}
+            <li>
+                <strong>Модель:</strong> {{ result.model }}<br>
+                <strong>URL:</strong> <a href="{{ result.model_url }}" target="_blank">{{ result.model_url }}</a><br>
+                {% if result.complectation %}
+                    <strong>Комплектация:</strong> {{ result.complectation }}<br>
+                {% endif %}
+                {% if result.complectations %}
+                    <strong>Комплектации:</strong> {{ result.complectations|join:", " }}<br>
+                {% endif %}
+                <strong>Характеристики:</strong> {{ result.features }}<br>
+                <strong>Цена:</strong> {{ result.price }}
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
