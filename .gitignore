@@ -30,6 +30,7 @@ static/
 
 # Virtual Environment
 .env
+.env.prod
 .venv
 env/
 venv/
@@ -55,4 +56,8 @@ postgres_data/
 
 # Docker
 .docker/
-docker-compose.override.yml 
+docker-compose.override.yml
+
+# SSL certificates
+nginx/ssl/*
+!nginx/ssl/.gitkeep 
