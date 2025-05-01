@@ -1,74 +1,159 @@
-{% csrf_token %}
-<form method="POST">
-    {% csrf_token %}
-    <label for="marka">Марка:</label>
-    <input type="text" name="marka" id="marka">
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поиск автомобилей</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            grid-column: 1 / -1;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .results {
+            margin-top: 20px;
+        }
+        .car-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Поиск автомобилей</h1>
+    <form id="searchForm" class="search-form">
+        <div class="form-group">
+            <label for="marka">Марка:</label>
+            <input type="text" id="marka" name="marka">
+        </div>
+        <div class="form-group">
+            <label for="model">Модель:</label>
+            <input type="text" id="model" name="model">
+        </div>
+        <div class="form-group">
+            <label for="price_min">Цена от:</label>
+            <input type="number" id="price_min" name="price_min">
+        </div>
+        <div class="form-group">
+            <label for="price_max">Цена до:</label>
+            <input type="number" id="price_max" name="price_max">
+        </div>
+        <div class="form-group">
+            <label for="year_min">Год от:</label>
+            <input type="number" id="year_min" name="year_min">
+        </div>
+        <div class="form-group">
+            <label for="year_max">Год до:</label>
+            <input type="number" id="year_max" name="year_max">
+        </div>
+        <div class="form-group">
+            <label>Тип топлива:</label>
+            <div>
+                <input type="checkbox" id="fuel_petrol" name="fuel_types" value="0">
+                <label for="fuel_petrol">Бензин</label>
+            </div>
+            <div>
+                <input type="checkbox" id="fuel_diesel" name="fuel_types" value="1">
+                <label for="fuel_diesel">Дизель</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Тип привода:</label>
+            <div>
+                <input type="checkbox" id="drive_front" name="drive_types" value="1">
+                <label for="drive_front">Передний</label>
+            </div>
+            <div>
+                <input type="checkbox" id="drive_rear" name="drive_types" value="2">
+                <label for="drive_rear">Задний</label>
+            </div>
+        </div>
+        <button type="submit">Найти</button>
+    </form>
+    <div id="results" class="results"></div>
 
-    <label for="model">Модель:</label>
-    <input type="text" name="model" id="model">
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const params = new URLSearchParams();
+            
+            for (const [key, value] of formData.entries()) {
+                if (value) params.append(key, value);
+            }
 
-    <label for="price_min">Цена от:</label>
-    <input type="number" name="price_min" id="price_min">
+            try {
+                const response = await fetch(`/api/search/?${params.toString()}`);
+                const data = await response.json();
+                displayResults(data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
 
-    <label for="price_max">Цена до:</label>
-    <input type="number" name="price_max" id="price_max">
+        function displayResults(cars) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
 
-    <label for="year_min">Год от:</label>
-    <input type="number" name="year_min" id="year_min">
-
-    <label for="year_max">Год до:</label>
-    <input type="number" name="year_max" id="year_max">
-
-    <label>Тип топлива:</label>
-    <input type="checkbox" name="fuel_type" value="0"> Бензин
-    <input type="checkbox" name="fuel_type" value="1"> Газ
-    <input type="checkbox" name="fuel_type" value="2"> Дизель
-
-    <label>Тип привода:</label>
-    <input type="checkbox" name="drive_type" value="1"> Передний
-    <input type="checkbox" name="drive_type" value="2"> Задний
-
-    <label>Тип трансмиссии:</label>
-    <input type="checkbox" name="trans_type" value="1"> Механика
-    <input type="checkbox" name="trans_type" value="3"> Автомат
-
-    <label for="volume_min">Объем от:</label>
-    <input type="number" name="volume_min" id="volume_min" step="0.1">
-
-    <label for="volume_max">Объем до:</label>
-    <input type="number" name="volume_max" id="volume_max" step="0.1">
-
-    <label for="power_min">Мощность от:</label>
-    <input type="number" name="power_min" id="power_min">
-
-    <label for="power_max">Мощность до:</label>
-    <input type="number" name="power_max" id="power_max">
-
-    <button type="submit">Найти</button>
-</form>
-
-{% if error %}
-    <div class="error-message" style="color: red; margin: 20px 0;">
-        {{ error }}
-    </div>
-{% endif %}
-
-{% if results %}
-    <h2>Результаты поиска:</h2>
-    <ul>
-        {% for result in results %}
-            <li>
-                <strong>Модель:</strong> {{ result.model }}<br>
-                <strong>URL:</strong> <a href="{{ result.model_url }}" target="_blank">{{ result.model_url }}</a><br>
-                {% if result.complectation %}
-                    <strong>Комплектация:</strong> {{ result.complectation }}<br>
-                {% endif %}
-                {% if result.complectations %}
-                    <strong>Комплектации:</strong> {{ result.complectations|join:", " }}<br>
-                {% endif %}
-                <strong>Характеристики:</strong> {{ result.features }}<br>
-                <strong>Цена:</strong> {{ result.price }}
-            </li>
-        {% endfor %}
-    </ul>
-{% endif %}
+            cars.forEach(car => {
+                const carDiv = document.createElement('div');
+                carDiv.className = 'car-item';
+                carDiv.innerHTML = `
+                    <h3>${car.model}</h3>
+                    <img src="${car.image_url}" alt="${car.model}" style="max-width: 200px;">
+                    <p><a href="${car.model_url}" target="_blank">Подробнее</a></p>
+                    <div class="complectations">
+                        ${car.complectation.map(comp => `
+                            <div class="complectation">
+                                <h4>${comp.name}</h4>
+                                <p>Цена: ${comp.price}</p>
+                                <p>Год: ${comp.year}</p>
+                                <p>Объем: ${comp.features.volume}</p>
+                                <p>Топливо: ${comp.features.fuel_type}</p>
+                                <p>Мощность: ${comp.features.power}</p>
+                                <p>КПП: ${comp.features.transmission}</p>
+                                <p>Привод: ${comp.features.drive}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                resultsDiv.appendChild(carDiv);
+            });
+        }
+    </script>
+</body>
+</html>

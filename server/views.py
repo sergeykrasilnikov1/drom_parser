@@ -6,8 +6,12 @@ from .settings import SearchParams, FuelType, DriveType, TransmissionType
 from django.http import JsonResponse
 from django.db.models import Q
 from .models import Car, Complectation
+from django.views.generic import TemplateView
+from .parse_cars import search_cars as parse_cars
 
-class SearchView(View):
+class SearchView(TemplateView):
+    template_name = 'search.html'
+
     def get(self, request):
         return render(request, 'search.html')
 
@@ -69,9 +73,9 @@ class SearchView(View):
             return render(request, 'search.html', {'error': f"Unexpected error: {str(e)}"})
 
 def search_cars(request):
-    """
-    Search cars based on query parameters
-    """
+    query = Q()
+    
+    # Получаем параметры из запроса
     model = request.GET.get('model')
     year_min = request.GET.get('year_min')
     year_max = request.GET.get('year_max')
@@ -85,63 +89,65 @@ def search_cars(request):
     power_min = request.GET.get('power_min')
     power_max = request.GET.get('power_max')
 
-    cars = Car.objects.all()
-
+    # Строим запрос
     if model:
-        cars = cars.filter(model__icontains=model)
+        query &= Q(model__icontains=model)
+    
+    # Получаем автомобили
+    cars = Car.objects.filter(query).prefetch_related('complectations')
+    
+    # Фильтруем комплектации
+    complectations_query = Q()
+    if year_min:
+        complectations_query &= Q(year__gte=year_min)
+    if year_max:
+        complectations_query &= Q(year__lte=year_max)
+    if price_min:
+        complectations_query &= Q(price__gte=price_min)
+    if price_max:
+        complectations_query &= Q(price__lte=price_max)
+    if fuel_type:
+        complectations_query &= Q(fuel_type__icontains=fuel_type)
+    if drive_type:
+        complectations_query &= Q(drive__icontains=drive_type)
+    if transmission:
+        complectations_query &= Q(transmission__icontains=transmission)
+    if volume_min:
+        complectations_query &= Q(volume__gte=volume_min)
+    if volume_max:
+        complectations_query &= Q(volume__lte=volume_max)
+    if power_min:
+        complectations_query &= Q(power__gte=power_min)
+    if power_max:
+        complectations_query &= Q(power__lte=power_max)
 
+    # Формируем ответ
     results = []
     for car in cars:
-        complectations = car.complectations.all()
-
-        if year_min:
-            complectations = complectations.filter(year__gte=year_min)
-        if year_max:
-            complectations = complectations.filter(year__lte=year_max)
-        if price_min:
-            complectations = complectations.filter(price__gte=price_min)
-        if price_max:
-            complectations = complectations.filter(price__lte=price_max)
-        if fuel_type:
-            complectations = complectations.filter(fuel_type__icontains=fuel_type)
-        if drive_type:
-            complectations = complectations.filter(drive__icontains=drive_type)
-        if transmission:
-            complectations = complectations.filter(transmission__icontains=transmission)
-        if volume_min:
-            complectations = complectations.filter(volume__gte=volume_min)
-        if volume_max:
-            complectations = complectations.filter(volume__lte=volume_max)
-        if power_min:
-            complectations = complectations.filter(power__gte=power_min)
-        if power_max:
-            complectations = complectations.filter(power__lte=power_max)
-
-        if not complectations.exists():
-            continue
-
-        car_data = {
-            'id': car.id,
-            'model': car.model,
-            'model_url': car.model_url,
-            'image_url': car.image_url,
-            'complectations': []
-        }
-
-        for comp in complectations:
-            car_data['complectations'].append({
-                'id': comp.id,
-                'name': comp.name,
-                'volume': comp.volume,
-                'fuel_type': comp.fuel_type,
-                'power': comp.power,
-                'transmission': comp.transmission,
-                'drive': comp.drive,
-                'price': comp.price,
-                'year': comp.year
-            })
-        
-        results.append(car_data)
+        complectations = car.complectations.filter(complectations_query)
+        if complectations.exists():
+            car_data = {
+                'id': car.id,
+                'model': car.model,
+                'model_url': car.model_url,
+                'image_url': car.image_url,
+                'complectations': []
+            }
+            
+            for comp in complectations:
+                car_data['complectations'].append({
+                    'id': comp.id,
+                    'name': comp.name,
+                    'volume': comp.volume,
+                    'fuel_type': comp.fuel_type,
+                    'power': comp.power,
+                    'transmission': comp.transmission,
+                    'drive': comp.drive,
+                    'price': comp.price,
+                    'year': comp.year
+                })
+            
+            results.append(car_data)
 
     return JsonResponse({
         'status': 'success',
