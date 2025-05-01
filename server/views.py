@@ -7,7 +7,6 @@ from django.http import JsonResponse
 from django.db.models import Q
 from .models import Car, Complectation
 from django.views.generic import TemplateView
-from .parse_cars import search_cars as parse_cars
 
 class SearchView(TemplateView):
     template_name = 'search.html'
