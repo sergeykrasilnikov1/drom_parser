@@ -1,81 +1,172 @@
 # Drom Car Search API
 
-## Overview
-This API provides access to car search functionality on drom.ru. It allows searching for cars based on various parameters and returns detailed information about matching vehicles. The API automatically fetches all available pages of results.
+## О проекте
+Этот проект представляет собой веб-сервис для поиска автомобилей на сайте drom.ru. Сервис предоставляет REST API для поиска автомобилей с различными параметрами, такими как марка, модель, год выпуска, цена и другие характеристики. API автоматически собирает данные со всех доступных страниц результатов поиска и сохраняет их в локальную базу данных для быстрого доступа.
 
-## Base URL
+### Основные возможности
+- Поиск автомобилей по различным параметрам
+- Автоматический сбор данных с drom.ru
+- REST API для доступа к данным
+- Локальное кэширование результатов в базе данных
+- Поддержка Docker для простого развертывания
+
+## Установка и запуск
+
+### Предварительные требования
+- Python 3.8 или выше
+- Docker и Docker Compose (для запуска в контейнерах)
+- PostgreSQL (если запускаете без Docker)
+
+### Запуск с использованием Docker
+
+1. Клонируйте репозиторий:
+```bash
+git clone <repository-url>
+cd drom
+```
+
+2. Создайте файл `.env` в корневой директории проекта со следующими переменными:
+```
+DB_NAME=your_db_name
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_HOST=db
+DB_PORT=5432
+DEBUG=0
+SECRET_KEY=your_secret_key
+```
+
+3. Запустите проект с помощью Docker Compose:
+```bash
+docker-compose up --build
+```
+
+Сервис будет доступен по адресу: http://localhost:80
+
+### Локальный запуск (без Docker)
+
+1. Создайте и активируйте виртуальное окружение:
+```bash
+python -m venv .venv
+source .venv/bin/activate  # для Linux/Mac
+# или
+.venv\Scripts\activate  # для Windows
+```
+
+2. Установите зависимости:
+```bash
+pip install -r requirements.txt
+```
+
+3. Создайте файл `.env` с настройками базы данных и другими параметрами:
+```
+DB_NAME=your_db_name
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_HOST=localhost
+DB_PORT=5432
+DEBUG=1
+SECRET_KEY=your_secret_key
+```
+
+4. Примените миграции:
+```bash
+python manage.py migrate
+```
+
+5. Запустите сервер разработки:
+```bash
+python manage.py runserver
+```
+
+Сервис будет доступен по адресу: http://localhost:8000
+
+## Тестирование API
+
+Для тестирования API вы можете использовать включенный файл `test_api.py`:
+
+```bash
+python test_api.py
+```
+
+## Документация API
+
+## Обзор
+API предоставляет доступ к функциональности поиска автомобилей на drom.ru. Позволяет искать автомобили по различным параметрам и возвращает подробную информацию о найденных транспортных средствах. API автоматически получает данные со всех доступных страниц результатов.
+
+## Базовый URL
 ```
 http://your-domain.com/api/search/
 ```
 
-## Endpoints
+## Конечные точки
 
-### Search Cars
+### Поиск автомобилей
 ```
 GET /api/search/
 ```
 
-#### Request Parameters
+#### Параметры запроса
 ```json
 {
-    "marka": "string",           // Car brand (optional)
-    "model": "string",           // Car model (optional)
-    "price_min": number,         // Minimum price (optional)
-    "price_max": number,         // Maximum price (optional)
-    "year_min": number,          // Minimum year (optional)
-    "year_max": number,          // Maximum year (optional)
-    "fuel_types": [              // Fuel types (optional)
-        "0",                     // Petrol
-        "1",                     // Diesel
-        "2",                     // Electricity
-        "3",                     // Gas
-        "4"                      // Gas/Diesel
+    "marka": "string",           // Марка автомобиля (необязательно)
+    "model": "string",           // Модель автомобиля (необязательно)
+    "price_min": number,         // Минимальная цена (необязательно)
+    "price_max": number,         // Максимальная цена (необязательно)
+    "year_min": number,          // Минимальный год выпуска (необязательно)
+    "year_max": number,          // Максимальный год выпуска (необязательно)
+    "fuel_types": [              // Типы топлива (необязательно)
+        "0",                     // Бензин
+        "1",                     // Дизель
+        "2",                     // Электричество
+        "3",                     // Газ
+        "4"                      // Газ/Дизель
     ],
-    "drive_types": [             // Drive types (optional)
-        "1",                     // Front
-        "2",                     // Back
-        "3"                      // Full
+    "drive_types": [             // Типы привода (необязательно)
+        "1",                     // Передний
+        "2",                     // Задний
+        "3"                      // Полный
     ],
-    "trans_types": [             // Transmission types (optional)
-        "0",                     // MT
-        "1",                     // CVT
-        "2",                     // AT
-        "3",                     // Robot
-        "4"                      // Reducer
+    "trans_types": [             // Типы трансмиссии (необязательно)
+        "0",                     // Механическая
+        "1",                     // Вариатор
+        "2",                     // Автомат
+        "3",                     // Робот
+        "4"                      // Редуктор
     ],
-    "volume_min": number,        // Minimum engine volume (optional)
-    "volume_max": number,        // Maximum engine volume (optional)
-    "power_min": number,         // Minimum power (optional)
-    "power_max": number          // Maximum power (optional)
+    "volume_min": number,        // Минимальный объем двигателя (необязательно)
+    "volume_max": number,        // Максимальный объем двигателя (необязательно)
+    "power_min": number,         // Минимальная мощность (необязательно)
+    "power_max": number          // Максимальная мощность (необязательно)
 }
 ```
 
-#### Response Format
+#### Формат ответа
 ```json
 [
     {
-        "model": "string",           // Car model name
-        "model_url": "string",       // URL to the car listing
-        "image_url": "string",       // URL to the car image
-        "complectation": [           // List of complectations
+        "model": "string",           // Название модели автомобиля
+        "model_url": "string",       // URL страницы автомобиля
+        "image_url": "string",       // URL изображения автомобиля
+        "complectation": [           // Список комплектаций
             {
-                "name": "string",    // Complectation name
-                "features": {         // Car features
-                    "volume": "string",      // Engine volume (e.g., "2.5 л")
-                    "fuel_type": "string",   // Fuel type (e.g., "бензин")
-                    "power": "string",       // Power (e.g., "181 л.с.")
-                    "transmission": "string", // Transmission type (e.g., "АКПП")
-                    "drive": "string"        // Drive type (e.g., "передний привод")
+                "name": "string",    // Название комплектации
+                "features": {         // Характеристики автомобиля
+                    "volume": "string",      // Объем двигателя (например, "2.5 л")
+                    "fuel_type": "string",   // Тип топлива (например, "бензин")
+                    "power": "string",       // Мощность (например, "181 л.с.")
+                    "transmission": "string", // Тип трансмиссии (например, "АКПП")
+                    "drive": "string"        // Тип привода (например, "передний привод")
                 },
-                "price": "string",   // Car price
-                "year": "string"     // Car year
+                "price": "string",   // Цена автомобиля
+                "year": "string"     // Год выпуска
             }
         ]
     }
 ]
 ```
 
-#### Example Response
+#### Пример ответа
 ```json
 [
     {
@@ -112,104 +203,104 @@ GET /api/search/
 ]
 ```
 
-#### Error Responses
+#### Ответы с ошибками
 
-##### 400 Bad Request
+##### 400 Некорректный запрос
 ```json
 {
-    "error": "string",  // Description of the validation error
+    "error": "string",  // Описание ошибки валидации
     "details": {
-        "message": "string"  // Detailed error message
+        "message": "string"  // Подробное сообщение об ошибке
     }
 }
 ```
 
-##### 500 Internal Server Error
+##### 500 Внутренняя ошибка сервера
 ```json
 {
-    "error": "string",  // Description of the server error
+    "error": "string",  // Описание серверной ошибки
     "details": {
-        "message": "string"  // Detailed error message
+        "message": "string"  // Подробное сообщение об ошибке
     }
 }
 ```
 
-### Table: Car
-| Field | Type | Description | Constraints |
+### Таблица: Car (Автомобиль)
+| Поле | Тип | Описание | Ограничения |
 |-------|------|-------------|-------------|
-| id | Integer | Primary key | Auto-increment |
-| model | CharField(255) | Model name | - |
-| model_url | URLField | URL to the car model page | - |
-| image_url | URLField | URL to the car image | - |
+| id | Integer | Первичный ключ | Автоинкремент |
+| model | CharField(255) | Название модели | - |
+| model_url | URLField | URL страницы модели | - |
+| image_url | URLField | URL изображения | - |
 
-### Table: Complectation
-| Field | Type | Description | Constraints |
+### Таблица: Complectation (Комплектация)
+| Поле | Тип | Описание | Ограничения |
 |-------|------|-------------|-------------|
-| id | Integer | Primary key | Auto-increment |
-| car | ForeignKey | Reference to Car model | on_delete=CASCADE |
-| name | CharField(255) | Complectation name | - |
-| volume | CharField(50) | Engine volume | - |
-| fuel_type | CharField(50) | Fuel type | - |
-| power | CharField(50) | Engine power | - |
-| transmission | CharField(50) | Transmission type | - |
-| drive | CharField(50) | Drive type | - |
-| price | CharField(50) | Price | - |
-| year | CharField(4) | Year of manufacture | - |
+| id | Integer | Первичный ключ | Автоинкремент |
+| car | ForeignKey | Ссылка на модель Car | on_delete=CASCADE |
+| name | CharField(255) | Название комплектации | - |
+| volume | CharField(50) | Объем двигателя | - |
+| fuel_type | CharField(50) | Тип топлива | - |
+| power | CharField(50) | Мощность двигателя | - |
+| transmission | CharField(50) | Тип трансмиссии | - |
+| drive | CharField(50) | Тип привода | - |
+| price | CharField(50) | Цена | - |
+| year | CharField(4) | Год выпуска | - |
 
-## Relationships
-- One Car can have many Complectations (One-to-Many relationship)
-- Complectation belongs to one Car (Many-to-One relationship)
+## Связи между таблицами
+- Один автомобиль может иметь много комплектаций (связь "один ко многим")
+- Комплектация принадлежит одному автомобилю (связь "многие к одному")
 
 
-### Search Cars from Database
+### Поиск автомобилей в базе данных
 ```
 GET /api/search_cars/
 ```
 
-This endpoint searches for cars in the local database based on various parameters. It returns cars that have at least one complectation matching the specified criteria.
+Этот эндпоинт осуществляет поиск автомобилей в локальной базе данных на основе различных параметров. Возвращает автомобили, у которых хотя бы одна комплектация соответствует указанным критериям.
 
-#### Request Parameters
-All parameters are optional. If no parameters are provided, all cars with their complectations will be returned.
+#### Параметры запроса
+Все параметры являются необязательными. Если параметры не указаны, будут возвращены все автомобили со всеми комплектациями.
 
 ```json
 {
-    "model": "string",           // Car model name (partial match, case-insensitive)
-    "year_min": "string",        // Minimum year (e.g., "2020")
-    "year_max": "string",        // Maximum year (e.g., "2023")
-    "price_min": "string",       // Minimum price (e.g., "1000000")
-    "price_max": "string",       // Maximum price (e.g., "5000000")
-    "fuel_type": "string",       // Fuel type (e.g., "бензин", "дизель")
-    "drive_type": "string",      // Drive type (e.g., "передний", "задний")
-    "transmission": "string",    // Transmission type (e.g., "автомат", "механика")
-    "volume_min": "string",      // Minimum engine volume (e.g., "1.6")
-    "volume_max": "string",      // Maximum engine volume (e.g., "3.0")
-    "power_min": "string",       // Minimum power (e.g., "100")
-    "power_max": "string"        // Maximum power (e.g., "300")
+    "model": "string",           // Название модели (частичное совпадение, без учета регистра)
+    "year_min": "string",        // Минимальный год выпуска (например, "2020")
+    "year_max": "string",        // Максимальный год выпуска (например, "2023")
+    "price_min": "string",       // Минимальная цена (например, "1000000")
+    "price_max": "string",       // Максимальная цена (например, "5000000")
+    "fuel_type": "string",       // Тип топлива (например, "бензин", "дизель")
+    "drive_type": "string",      // Тип привода (например, "передний", "задний")
+    "transmission": "string",    // Тип трансмиссии (например, "автомат", "механика")
+    "volume_min": "string",      // Минимальный объем двигателя (например, "1.6")
+    "volume_max": "string",      // Максимальный объем двигателя (например, "3.0")
+    "power_min": "string",       // Минимальная мощность (например, "100")
+    "power_max": "string"        // Максимальная мощность (например, "300")
 }
 ```
 
-#### Response Format
+#### Формат ответа
 ```json
 {
     "status": "success",
-    "count": number,             // Number of cars found
-    "results": [                 // List of cars
+    "count": number,             // Количество найденных автомобилей
+    "results": [                 // Список автомобилей
         {
-            "id": number,        // Car ID
-            "model": "string",   // Car model name
-            "model_url": "string", // URL to the car model page
-            "image_url": "string", // URL to the car image
-            "complectations": [  // List of matching complectations
+            "id": number,        // ID автомобиля
+            "model": "string",   // Название модели
+            "model_url": "string", // URL страницы модели
+            "image_url": "string", // URL изображения
+            "complectations": [  // Список подходящих комплектаций
                 {
-                    "id": number,           // Complectation ID
-                    "name": "string",       // Complectation name
-                    "volume": "string",     // Engine volume
-                    "fuel_type": "string",  // Fuel type
-                    "power": "string",      // Power
-                    "transmission": "string", // Transmission type
-                    "drive": "string",      // Drive type
-                    "price": "string",      // Price
-                    "year": "string"        // Year
+                    "id": number,           // ID комплектации
+                    "name": "string",       // Название комплектации
+                    "volume": "string",     // Объем двигателя
+                    "fuel_type": "string",  // Тип топлива
+                    "power": "string",      // Мощность
+                    "transmission": "string", // Тип трансмиссии
+                    "drive": "string",      // Тип привода
+                    "price": "string",      // Цена
+                    "year": "string"        // Год выпуска
                 }
             ]
         }
@@ -217,12 +308,12 @@ All parameters are optional. If no parameters are provided, all cars with their 
 }
 ```
 
-#### Example Request
+#### Пример запроса
 ```
 GET /api/search_cars/?model=Toyota&year_min=2020&price_max=5000000
 ```
 
-#### Example Response
+#### Пример ответа
 ```json
 {
     "status": "success",
